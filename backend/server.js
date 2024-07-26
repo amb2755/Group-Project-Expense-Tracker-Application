@@ -128,11 +128,6 @@ app.post("/addExpense", function(req, res) {
   var date = req.body.dateInput;
   var description = req.body.descriptionInput;
 
-  if (description === null)
-  {
-    description = "";
-  }
-
   const newExpense = new Expense({
     name: name,
     category: category,
