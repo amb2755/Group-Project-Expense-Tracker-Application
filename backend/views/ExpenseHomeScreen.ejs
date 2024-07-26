@@ -23,21 +23,21 @@
          name="nameInput"
          placeholder="Name"
          autocomplete="off"
-				 value=""
+				 value="<%= expense.name %>"
        />
 
        <input
          name="categoryInput"
          placeholder="Category"
          autocomplete="off"
-				 value=""
+				 value="<%= expense.category %>"
        />
 
        <input
          name="priceInput"
          placeholder="$0.00"
          autocomplete="off"
-				 value=""
+				 value="<%= expense.price === -1 ? null : expense.price%>"
        />
 
        <input
@@ -45,14 +45,18 @@
 				 type="date"
          placeholder="Date"
          autocomplete="off"
-				 value="2024-01-01"
+				 value="
+				 	<%= expense.date.getFullYear() %>-
+					<%= expense.date.getMonth() %>-
+				 	<%= expense.date.getDate() %>
+				 "
        />
 
        <input
          name="descriptionInput"
          placeholder="Description"
          autocomplete="off"
-				 value=""
+				 value="<%= expense.description %>"
        />
 
        <button type="submit" name="addEntry">Add expense</button>

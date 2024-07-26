@@ -7,6 +7,8 @@ const moment = require('moment');
 
 const port = process.env.PORT || 3000;
 var loggedInUserID = -1;
+var activeExpense = -1;
+
 
 const app = express();
 
@@ -61,6 +63,14 @@ const User = mongoose.model('User', userSchema);
 //create expense model
 const Expense = mongoose.model('Expense', expenseSchema);
 
+const emptyExpense = new Expense({
+  name: "",
+  category: "",
+  price: -1,
+  date: new Date("2024-01-01"),
+  description: ""
+});
+
 module.exports = User;
 
 app.get("/", function(req, res){
@@ -105,6 +115,8 @@ app.post("/", function(req, res) {
 
 app.get("/home", function(req, res) {
 
+    console.log(activeExpense);
+
     //checks if user is logged in first
     if (loggedInUserID === -1)
     {
@@ -115,7 +127,18 @@ app.get("/home", function(req, res) {
     User.findOne({_id: loggedInUserID}).then((data) => {
         let expenses = data.expenses;
 
-        res.render('ExpenseHomeScreen', {expenseArray: expenses});
+        if (activeExpense == -1)
+        {
+          console.log(emptyExpense);
+          res.render('ExpenseHomeScreen', {expenseArray: expenses, expense: emptyExpense});
+        }
+        else {
+          console.log(activeExpense.date);
+          res.render('ExpenseHomeScreen', {expenseArray: expenses, expense: activeExpense});
+          activeExpense = -1;
+        }
+        // 2024-01-01
+
     });
 
 });
@@ -152,9 +175,6 @@ app.post("/editEntry", function(req, res) {
   var expenseID = req.body.modifyButton.split(',')[1];
   //determines if it is being edited or delete, 1 is edit 2 is delete
   var editOrDelete = Array.from(req.body.modifyButton)[0];
-  console.log(editOrDelete);
-  console.log(expenseID);
-
 
   //gets user logged in
   User.findOne({_id: loggedInUserID}).then((data) => {
@@ -165,12 +185,15 @@ app.post("/editEntry", function(req, res) {
       //if expense found delete expense
       if (data.expenses[expenseIndex]._id == expenseID)
       {
+        if (editOrDelete == 1)
+        {
+          activeExpense = data.expenses[expenseIndex];
+        }
         data.expenses.splice(expenseIndex, 1);
         data.save();
         res.redirect("/home");
       }
     }
-    console.log("Failed to delete");
   });
 });
 
