@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const _ = require('lodash');
 const moment = require('moment');
 
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 var loggedInUserID = -1;
 
 const app = express();
@@ -205,6 +205,6 @@ app.post("/menu", function(req, res) {
 });
 
 //Says which port to listen to
-app.listen(3000, function(){
+app.listen(port, function(){
   console.log("Server started");
 });
