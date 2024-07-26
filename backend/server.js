@@ -200,8 +200,66 @@ app.post("/sort", function(req, res) {
 
 //menu options, currently just logs out and goes to login screen
 app.post("/menu", function(req, res) {
-  loggedInUserID = -1;
-  res.redirect("/");
+  var page = req.body.menuButton;
+
+  /*
+  home
+  visual
+  monthly
+  logout
+  */
+
+  switch (page) {
+    case "home":
+      res.redirect("/home");
+      break;
+    case "visual":
+      res.redirect("/visual");
+      break;
+    case "monthly":
+      res.redirect("/monthly");
+      break;
+    case "logout":
+      loggedInUserID = -1;
+      res.redirect("/");
+      break;
+    default:
+      console.log("Unknown menu clicked");
+  }
+});
+
+app.get("/visual", function(req, res) {
+
+    //checks if user is logged in first
+    if (loggedInUserID === -1)
+    {
+      res.redirect("/");
+    }
+
+    //gets user
+    User.findOne({_id: loggedInUserID}).then((data) => {
+        let expenses = data.expenses;
+
+        res.render('VisualReportScreen', {expenseArray: expenses});
+    });
+
+});
+
+app.get("/monthly", function(req, res) {
+
+    //checks if user is logged in first
+    if (loggedInUserID === -1)
+    {
+      res.redirect("/");
+    }
+
+    //gets user 
+    User.findOne({_id: loggedInUserID}).then((data) => {
+        let expenses = data.expenses;
+
+        res.render('MonthlyReportScreen', {expenseArray: expenses});
+    });
+
 });
 
 //Says which port to listen to
