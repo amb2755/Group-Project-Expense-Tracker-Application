@@ -16,6 +16,7 @@ app.use(bodyParser.urlencoded({extended: true}))
 
 app.use(express.static("public"));
 
+//connects to mongoDB database
 mongoose.connect("mongodb://localhost:27017/expenseDB", {useNewUrlParser: true});
 
 // Define the expense schema //
@@ -63,12 +64,12 @@ const Expense = mongoose.model('Expense', expenseSchema);
 module.exports = User;
 
 app.get("/", function(req, res){
-    // res.sendFile(__dirname + "/frontend/EjsScreens/LoginScreen.ejs");
     res.render('LoginScreen', {loginTitle: ""});
 });
 
-//adds new item to list
+
 app.post("/", function(req, res) {
+  //gets login information
     var newUsername = (req.body.usernameInput).toLowerCase();
     var newPassword = req.body.passwordInput;
     var newAccount = typeof req.body.newAccountSwitch !== 'undefined';
@@ -80,6 +81,7 @@ app.post("/", function(req, res) {
     });
 
     User.findOne({username: newUsername}).then((data) => {
+      //if user tries to make new account
       if (data === null && newAccount)
       {
         loggedInUserID = newUser._id;
@@ -87,6 +89,7 @@ app.post("/", function(req, res) {
         res.redirect("/home");
 
       }
+      //if user tries to log into existing account
       else if (data !== null && data.password === newPassword && !newAccount)
       {
         loggedInUserID = data._id;
@@ -94,7 +97,7 @@ app.post("/", function(req, res) {
       }
       else
       {
-        //renders lists of items todo
+        //renders if login unsuccessful
         res.render('LoginScreen', {loginTitle: "Invalid info, please try again"});
       }
     });
@@ -102,15 +105,15 @@ app.post("/", function(req, res) {
 
 app.get("/home", function(req, res) {
 
+    //checks if user is logged in first
     if (loggedInUserID === -1)
     {
       res.redirect("/");
     }
 
-    let expenses = [];
-
+    //gets user and loads there expenses by passing array to ejs
     User.findOne({_id: loggedInUserID}).then((data) => {
-        expenses = data.expenses;
+        let expenses = data.expenses;
 
         res.render('ExpenseHomeScreen', {expenseArray: expenses});
     });
@@ -118,7 +121,7 @@ app.get("/home", function(req, res) {
 });
 
 app.post("/addExpense", function(req, res) {
-  //implement home button functionality
+  //gets new expense values
   var name = req.body.nameInput;
   var category = req.body.categoryInput;
   var price = req.body.priceInput;
@@ -166,16 +169,12 @@ app.post("/deleteExpense", function(req, res) {
 });
 
 app.post("/sort", function(req, res) {
+  //gets the button that was clicked
   var sortChoice = req.body.sortButton;
-  /*
-  name
-  category
-  amount
-  date
-  */
 
-  console.log(sortChoice);
+  //finds logged in user
   User.findOne({_id: loggedInUserID}).then((data) => {
+      //sorts array by what the user selected from lowest to highest
       switch (sortChoice) {
         case "name":
           data.expenses.sort((a, b) => b.name.localeCompare(a.name));
@@ -192,11 +191,17 @@ app.post("/sort", function(req, res) {
         default:
           console.log("Unknown sort method");
       }
-
+      //saves data and reloads page
       data.save();
       res.redirect("/home");
   });
 
+});
+
+//menu options, currently just logs out and goes to login screen
+app.post("/menu", function(req, res) {
+  loggedInUserID = -1;
+  res.redirect("/");
 });
 
 //Says which port to listen to

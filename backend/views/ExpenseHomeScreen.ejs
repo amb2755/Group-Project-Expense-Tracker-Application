@@ -7,16 +7,16 @@
 	</head>
 	 <body>
 
-
-
-		 <form action="/home" method="post" name="menuForm">
-			 <button type="submit" name="homeButton">edit/view expenses</button>
-			 <button type="submit" name="visualButton">Visual report</button>
-			 <button type="submit" name="monthlyButton">monthly report</button>
-			 <button type="submit" name="logoutButton">lougout</button>
+		 <!--Menu form for navigating between different pages -->
+		 <form action="/menu" method="post" name="menuForm">
+			 <button type="submit" name="menuButton" value="home">edit/view expenses</button>
+			 <button type="submit" name="menuButton" value="visual">Visual report</button>
+			 <button type="submit" name="menuButton" value="monthly">monthly report</button>
+			 <button type="submit" name="menuButton" value="logout">lougout</button>
 
 		 </form>
 
+		 <!-- Form for entering and adding expenses for logged in user -->
      <form action="/addExpense" method="post" name="addExpenseForm">
 
        <input
@@ -54,7 +54,7 @@
 
      </form>
 
-		 <!-- Create table with expenses -->
+		 <!-- Load expenses Create table with expenses -->
      <table style="width:100%">
 			 <tr>
 				 <form action="/sort" method="post">
@@ -73,7 +73,7 @@
 		 				 <th> <%= expenseArray[index].name %> </th>
 		 				 <th> <%= expenseArray[index].category %> </th>
 		 				 <th> <%= expenseArray[index].price %> </th>
-		 				 <th>
+		 				 <th> <!-- Format date for view -->
 							 <%= expenseArray[index].date.getMonth() + 1 %> /
 							 <%= expenseArray[index].date.getDate() + 1 %> /
 							 <%= expenseArray[index].date.getFullYear() %>
