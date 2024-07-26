@@ -140,15 +140,21 @@ app.post("/addExpense", function(req, res) {
   User.findOne({_id: loggedInUserID}).then((data) => {
     data.expenses.push(newExpense);
     data.save();
+    res.redirect("/home");
   });
 
-  res.redirect("/home");
 
 });
 
-app.post("/deleteExpense", function(req, res) {
+//function for editing or deleteing functions
+app.post("/editEntry", function(req, res) {
   //expense id to be deleted
-  var expenseID = req.body.deleteEntry;
+  var expenseID = req.body.modifyButton.split(',')[1];
+  //determines if it is being edited or delete, 1 is edit 2 is delete
+  var editOrDelete = Array.from(req.body.modifyButton)[0];
+  console.log(editOrDelete);
+  console.log(expenseID);
+
 
   //gets user logged in
   User.findOne({_id: loggedInUserID}).then((data) => {
@@ -168,25 +174,60 @@ app.post("/deleteExpense", function(req, res) {
   });
 });
 
+//var for determining if list should be sorted low -> high or high -> low
+var sortUpDown = "down";
 app.post("/sort", function(req, res) {
   //gets the button that was clicked
   var sortChoice = req.body.sortButton;
+
 
   //finds logged in user
   User.findOne({_id: loggedInUserID}).then((data) => {
       //sorts array by what the user selected from lowest to highest
       switch (sortChoice) {
         case "name":
-          data.expenses.sort((a, b) => b.name.localeCompare(a.name));
+          if (sortUpDown === "down")
+          {
+            data.expenses.sort((a, b) => b.name.localeCompare(a.name));
+            sortUpDown = "up";
+          }
+          else {
+            data.expenses.sort((b, a) => b.name.localeCompare(a.name));
+            sortUpDown = "down";
+          }
           break;
         case "category":
-          data.expenses.sort((a, b) => b.category.localeCompare(a.category));
+          if (sortUpDown === "down")
+          {
+            data.expenses.sort((a, b) => b.category.localeCompare(a.category));
+            sortUpDown = "up";
+          }
+          else {
+            data.expenses.sort((b, a) => b.category.localeCompare(a.category));
+            sortUpDown = "down";
+          }
           break;
         case "amount":
-          data.expenses.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+          if (sortUpDown === "down")
+          {
+            data.expenses.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+            sortUpDown = "up";
+          }
+          else {
+            data.expenses.sort((b, a) => parseFloat(b.price) - parseFloat(a.price));
+            sortUpDown = "down";
+          }
           break;
         case "date":
-          data.expenses.sort((a, b) => b.date.getTime() - a.date.getTime());
+          if (sortUpDown === "down")
+          {
+            data.expenses.sort((a, b) => b.date.getTime() - a.date.getTime());
+            sortUpDown = "up";
+          }
+          else {
+            data.expenses.sort((b, a) => b.date.getTime() - a.date.getTime());
+            sortUpDown = "down";
+          }
           break;
         default:
           console.log("Unknown sort method");
@@ -198,7 +239,7 @@ app.post("/sort", function(req, res) {
 
 });
 
-//menu options, currently just logs out and goes to login screen
+//menu options, navigates between each ejs page
 app.post("/menu", function(req, res) {
   var page = req.body.menuButton;
 
@@ -253,7 +294,7 @@ app.get("/monthly", function(req, res) {
       res.redirect("/");
     }
 
-    //gets user 
+    //gets user
     User.findOne({_id: loggedInUserID}).then((data) => {
         let expenses = data.expenses;
 
