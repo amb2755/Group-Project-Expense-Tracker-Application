@@ -69,7 +69,7 @@ app.get("/", function(req, res){
 
 
 app.post("/", function(req, res) {
-  //gets login information
+    //gets login information
     var newUsername = (req.body.usernameInput).toLowerCase();
     var newPassword = req.body.passwordInput;
     var newAccount = typeof req.body.newAccountSwitch !== 'undefined';
@@ -127,6 +127,11 @@ app.post("/addExpense", function(req, res) {
   var price = req.body.priceInput;
   var date = req.body.dateInput;
   var description = req.body.descriptionInput;
+
+  if (description === null)
+  {
+    description = "";
+  }
 
   const newExpense = new Expense({
     name: name,
@@ -186,7 +191,7 @@ app.post("/sort", function(req, res) {
           data.expenses.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
           break;
         case "date":
-          data.expenses.sort((a, b) => a.date.getTime() - b.date.getTime());
+          data.expenses.sort((a, b) => b.date.getTime() - a.date.getTime());
           break;
         default:
           console.log("Unknown sort method");
