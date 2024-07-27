@@ -115,7 +115,6 @@ app.post("/", function(req, res) {
 
 app.get("/home", function(req, res) {
 
-    console.log(activeExpense);
 
     //checks if user is logged in first
     if (loggedInUserID === -1)
@@ -123,21 +122,20 @@ app.get("/home", function(req, res) {
       res.redirect("/");
     }
 
+    var sort = sortUpDown == "down" ? '▼' : '▲';
+
     //gets user and loads there expenses by passing array to ejs
     User.findOne({_id: loggedInUserID}).then((data) => {
         let expenses = data.expenses;
 
         if (activeExpense == -1)
         {
-          console.log(emptyExpense);
-          res.render('ExpenseHomeScreen', {expenseArray: expenses, expense: emptyExpense});
+          res.render('ExpenseHomeScreen', {expenseArray: expenses, expense: emptyExpense, sort: sort});
         }
         else {
-          console.log(activeExpense.date);
-          res.render('ExpenseHomeScreen', {expenseArray: expenses, expense: activeExpense});
+          res.render('ExpenseHomeScreen', {expenseArray: expenses, expense: activeExpense, sort: sort});
           activeExpense = -1;
         }
-        // 2024-01-01
 
     });
 

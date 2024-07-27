@@ -26,12 +26,11 @@
 				 value="<%= expense.name %>"
        />
 
-       <input
-         name="categoryInput"
-         placeholder="Category"
-         autocomplete="off"
-				 value="<%= expense.category %>"
-       />
+			 <select name="categoryInput" selectedIndex="<%= expense.category %>">
+				 	<option value="Groceries">Grocieries</option>
+					<option value="Gas">Gas</option>
+					<option value="Bills">Bills</option>
+			 </select>
 
        <input
          name="priceInput"
@@ -63,14 +62,14 @@
 
      </form>
 
-		 <!-- Load expenses Create table with expenses -->
+		 <!-- Load expenses Create table with expenses ▼|▲-->
      <table style="width:100%">
 			 <tr>
 				 <form action="/sort" method="post">
-					 <th> Name <button type="submit" name="sortButton" value="name">▼|▲</button> </th>
-					 <th> Category <button type="submit" name="sortButton" value="category">▼|▲</button> </th>
-					 <th> Amount <button type="submit" name="sortButton" value="amount">▼|▲</button> </th>
-					 <th> Date <button type="submit" name="sortButton" value="date">▼|▲</button> </th>
+					 <th> Name <button type="submit" name="sortButton" value="name"><%= sort %></button> </th>
+					 <th> Category <button type="submit" name="sortButton" value="category"> <%= sort %></button> </th>
+					 <th> Amount <button type="submit" name="sortButton" value="amount"><%= sort %></button> </th>
+					 <th> Date <button type="submit" name="sortButton" value="date"><%= sort %></button> </th>
 					 <th> Desc. </th>
 					 <th> Edit/Delete </th>
 			 	</form>
