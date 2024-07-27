@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const _ = require('lodash');
 const moment = require('moment');
-
+const path = require('path');
 const port = process.env.PORT || 3000;
 var loggedInUserID = -1;
 var activeExpense = -1;
@@ -13,6 +13,9 @@ var activeExpense = -1;
 const app = express();
 
 app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '/frontend/views'));
+app.use(express.static(__dirname + '/frontend/static'));
+
 
 app.use(bodyParser.urlencoded({extended: true}))
 

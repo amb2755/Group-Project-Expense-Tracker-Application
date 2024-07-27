@@ -4,6 +4,7 @@
 		<meta charset="utf-8">
 		<title>ExpenseTracker</title>
 
+		<link rel="stylesheet" type="text/css" href="css/styles.css">
 	</head>
 	 <body>
 
@@ -16,54 +17,51 @@
 
 		 </form>
 
+
 		 <!-- Form for entering and adding expenses for logged in user -->
      <form action="/addExpense" method="post" name="addExpenseForm">
+			 <div class="entry">
+	       <input
+	         name="nameInput"
+	         placeholder="Name"
+	         autocomplete="off"
+					 value="<%= expense.name %>"
+	       />
 
-       <input
-         name="nameInput"
-         placeholder="Name"
-         autocomplete="off"
-				 value="<%= expense.name %>"
-       />
+				 <select name="categoryInput" selectedIndex="<%= expense.category %>">
+					 	<option value="Groceries">Grocieries</option>
+						<option value="Gas">Gas</option>
+						<option value="Bills">Bills</option>
+				 </select>
 
-			 <select name="categoryInput" selectedIndex="<%= expense.category %>">
-				 	<option value="Groceries">Grocieries</option>
-					<option value="Gas">Gas</option>
-					<option value="Bills">Bills</option>
-			 </select>
+	       <input
+	         name="priceInput"
+	         placeholder="$0.00"
+	         autocomplete="off"
+					 value="<%= expense.price === -1 ? null : expense.price%>"
+	       />
 
-       <input
-         name="priceInput"
-         placeholder="$0.00"
-         autocomplete="off"
-				 value="<%= expense.price === -1 ? null : expense.price%>"
-       />
+	       <input
+	         name="dateInput"
+					 type="date"
+	         placeholder="Date"
+	         autocomplete="off"
+					 value="<%= expense.date.getFullYear() %>-<%= expense.date.getMonth() %>-<%= expense.date.getDate() %>"
+	       />
 
-       <input
-         name="dateInput"
-				 type="date"
-         placeholder="Date"
-         autocomplete="off"
-				 value="
-				 	<%= expense.date.getFullYear() %>-
-					<%= expense.date.getMonth() %>-
-				 	<%= expense.date.getDate() %>
-				 "
-       />
+	       <input
+	         name="descriptionInput"
+	         placeholder="Description"
+	         autocomplete="off"
+					 value="<%= expense.description %>"
+	       />
 
-       <input
-         name="descriptionInput"
-         placeholder="Description"
-         autocomplete="off"
-				 value="<%= expense.description %>"
-       />
-
-       <button type="submit" name="addEntry">Add expense</button>
-
+	       <button type="submit" name="addEntry">Add expense</button>
+			 </div>
      </form>
 
 		 <!-- Load expenses Create table with expenses ▼|▲-->
-     <table style="width:100%">
+     <table class="entryTable" >
 			 <tr>
 				 <form action="/sort" method="post">
 					 <th> Name <button type="submit" name="sortButton" value="name"><%= sort %></button> </th>
