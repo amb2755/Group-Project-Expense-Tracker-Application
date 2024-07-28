@@ -3,24 +3,26 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
-require('dotenv').config(); // Load environment variables from .env file
+require('dotenv').config();
 
-const app = express(); // Create an Express application
-const port = process.env.PORT || 3000; // Set the port to the environment variable PORT or 3000
+const app = express();
+const port = process.env.PORT || 3000;
+const mongoURI = process.env.MONGO_URI;
 
-const mongoURI = process.env.MONGO_URI; // Ensure the MongoDB URI is set
+console.log('MONGO_URI:', mongoURI);
 
-console.log('MONGO_URI:', mongoURI); // Debug: print the MongoDB URI to ensure it's loaded
-
-let loggedInUserID = -1; // Variable to store the ID of the logged-in user
+let loggedInUserID = -1;
 
 // Set up middleware
-app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
-app.use(bodyParser.json()); // Parse JSON bodies
-app.use(express.static(path.join(__dirname, '../frontend/build'))); // Serve static files from the frontend build directory
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Connect to MongoDB using the connection string in the .env file
-mongoose.connect(mongoURI)
+// Set the view engine to ejs
+app.set('view engine', 'ejs');
+
+// Connect to MongoDB
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => console.log('Connected to MongoDB'))
     .catch((error) => console.error('Could not connect to MongoDB:', error));
 
@@ -46,9 +48,9 @@ const Expense = mongoose.model('Expense', expenseSchema);
 
 // Define route handlers
 
-// Serve the frontend application
+// Serve the login page
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+    res.render('LoginScreen', { loginTitle: "Please enter your credentials" });
 });
 
 // Handle login and registration
@@ -86,6 +88,16 @@ app.get("/home", (req, res) => {
             res.render('ExpenseHomeScreen', { expenseArray: expenses });
         });
     }
+});
+
+// Serve the monthly report page
+app.get("/monthly", (req, res) => {
+    res.render('MonthlyReportScreen');
+});
+
+// Serve the visual report page
+app.get("/visual", (req, res) => {
+    res.render('VisualReportScreen');
 });
 
 // Handle adding a new expense
@@ -142,12 +154,27 @@ app.post("/sort", (req, res) => {
 
 // Handle user logout
 app.post("/menu", (req, res) => {
-    loggedInUserID = -1;
-    res.redirect("/");
+    const choice = req.body.menuButton;
+    switch (choice) {
+        case 'home':
+            res.redirect('/home');
+            break;
+        case 'visual':
+            res.redirect('/visual');
+            break;
+        case 'monthly':
+            res.redirect('/monthly');
+            break;
+        case 'logout':
+            loggedInUserID = -1;
+            res.redirect('/');
+            break;
+        default:
+            res.redirect('/');
+    }
 });
 
-// Serve frontend static files in production
-if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../frontend/build')));
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../front
+// Start the server
+app.listen(port, () => {
+    console.log(`Server started on port ${port}`);
+});
