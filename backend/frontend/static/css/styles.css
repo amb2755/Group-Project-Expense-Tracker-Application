@@ -59,6 +59,10 @@ footer {
    justify-content: space-between;
 }
 
+.entrylabels {
+   text-align: center;
+}
+
 .entryTable {
   table-layout: fixed;
   width: 100%;

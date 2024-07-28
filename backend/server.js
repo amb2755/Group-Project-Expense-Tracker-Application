@@ -69,7 +69,7 @@ const emptyExpense = new Expense({
   name: "",
   category: "",
   price: -1,
-  date: new Date("2024-01-01"),
+  date: new Date(),
   description: ""
 });
 
@@ -146,12 +146,13 @@ app.get("/home", function(req, res) {
 });
 
 app.post("/addExpense", function(req, res) {
-  //gets new expense values
-  var name = req.body.nameInput;
+  //gets new expense values and ensures default values are added if empty
+  var name = req.body.nameInput != "" ? req.body.nameInput : "None";
   var category = req.body.categoryInput;
-  var price = req.body.priceInput;
-  var date = req.body.dateInput;
+  var price = req.body.priceInput != "" ? req.body.priceInput : 0;
+  var date = req.body.dateInput != "" ? req.body.dateInput : new Date();
   var description = req.body.descriptionInput;
+
 
   const newExpense = new Expense({
     name: name,
@@ -161,13 +162,17 @@ app.post("/addExpense", function(req, res) {
     description: description
   });
 
+  try {
+    //adds expense to logined in user
+    User.findOne({_id: loggedInUserID}).then((data) => {
+      data.expenses.push(newExpense);
+      data.save();
+      res.redirect("/home");
+    });
+  } catch (error) {
+      res.redirect("/home");
+  }
 
-  //adds expense to logined in user
-  User.findOne({_id: loggedInUserID}).then((data) => {
-    data.expenses.push(newExpense);
-    data.save();
-    res.redirect("/home");
-  });
 
 
 });
@@ -191,6 +196,9 @@ app.post("/editEntry", function(req, res) {
         if (editOrDelete == 1)
         {
           activeExpense = data.expenses[expenseIndex];
+          console.log(data.expenses[expenseIndex].date.getFullYear() +
+          "/" + data.expenses[expenseIndex].date.getMonth() +
+          "/" + data.expenses[expenseIndex].date.getDate());
         }
         data.expenses.splice(expenseIndex, 1);
         data.save();
