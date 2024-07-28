@@ -16,7 +16,6 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/frontend/views'));
 app.use(express.static(__dirname + '/frontend/static'));
 
-
 app.use(bodyParser.urlencoded({extended: true}))
 
 app.use(express.static("public"));
@@ -129,14 +128,16 @@ app.get("/home", function(req, res) {
 
     //gets user and loads there expenses by passing array to ejs
     User.findOne({_id: loggedInUserID}).then((data) => {
-        let expenses = data.expenses;
+        let expenses = data.expenses == null ? [] : data.expenses;
 
         if (activeExpense == -1)
         {
-          res.render('ExpenseHomeScreen', {expenseArray: expenses, expense: emptyExpense, sort: sort});
+          res.render('ExpenseHomeScreen', {expenseArray: expenses, expense: emptyExpense,
+            sort: sort, username: data.username});
         }
         else {
-          res.render('ExpenseHomeScreen', {expenseArray: expenses, expense: activeExpense, sort: sort});
+          res.render('ExpenseHomeScreen', {expenseArray: expenses, expense: activeExpense,
+            sort: sort, username: data.username});
           activeExpense = -1;
         }
 
@@ -159,6 +160,7 @@ app.post("/addExpense", function(req, res) {
     date: date,
     description: description
   });
+
 
   //adds expense to logined in user
   User.findOne({_id: loggedInUserID}).then((data) => {
