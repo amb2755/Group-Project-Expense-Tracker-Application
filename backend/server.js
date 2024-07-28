@@ -128,7 +128,8 @@ app.get("/home", function(req, res) {
 
     //gets user and loads there expenses by passing array to ejs
     User.findOne({_id: loggedInUserID}).then((data) => {
-        let expenses = data.expenses == null ? [] : data.expenses;
+        //checks if expense array can be filled
+        let expenses = data == [] ? [] : data.expenses;
 
         if (activeExpense == -1)
         {
@@ -195,6 +196,7 @@ app.post("/editEntry", function(req, res) {
       {
         if (editOrDelete == 1)
         {
+          //adds expense to be edited into input fields
           activeExpense = data.expenses[expenseIndex];
           console.log(data.expenses[expenseIndex].date.getFullYear() +
           "/" + data.expenses[expenseIndex].date.getMonth() +
