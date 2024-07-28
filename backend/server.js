@@ -1,210 +1,153 @@
-//include dependencies
+// Import required dependencies
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const _ = require('lodash');
-const moment = require('moment');
+const path = require('path');
+require('dotenv').config(); // Load environment variables from .env file
 
-const port = process.env.PORT || 3000;
-var loggedInUserID = -1;
+const app = express(); // Create an Express application
+const port = process.env.PORT || 3000; // Set the port to the environment variable PORT or 3000
 
-const app = express();
+const mongoURI = process.env.MONGO_URI; // Ensure the MongoDB URI is set
 
-app.set('view engine', 'ejs');
+console.log('MONGO_URI:', mongoURI); // Debug: print the MongoDB URI to ensure it's loaded
 
-app.use(bodyParser.urlencoded({extended: true}))
+let loggedInUserID = -1; // Variable to store the ID of the logged-in user
 
-app.use(express.static("public"));
+// Set up middleware
+app.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(bodyParser.json()); // Parse JSON bodies
+app.use(express.static(path.join(__dirname, '../frontend/build'))); // Serve static files from the frontend build directory
 
-//connects to mongoDB database
-mongoose.connect("mongodb://localhost:27017/expenseDB", {useNewUrlParser: true});
+// Connect to MongoDB using the connection string in the .env file
+mongoose.connect(mongoURI)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((error) => console.error('Could not connect to MongoDB:', error));
 
-// Define the expense schema //
-const expenseSchema = mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, "Check entry, ensure all fields complete"]
-    },
-    category: {
-        type: String,
-        required: [true, "Check entry, ensure all fields complete"]
-    },
-    price: {
-        type: Number,
-        required: [true, "Check entry, ensure all fields complete"],
-        min: 0
-    },
-    date: {
-        type: Date,
-        required: [true, "Check entry, ensure all fields complete"]
-    },
-    description: {
-        type: String
-    }
+// Define the expense schema
+const expenseSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    category: { type: String, required: true },
+    price: { type: Number, required: true, min: 0 },
+    date: { type: Date, required: true },
+    description: { type: String }
 });
 
-// Define the user schema //
-const userSchema = mongoose.Schema({
-    username: {
-        type: String,
-        required: [true, "Check entry, ensure all fields complete"]
-    },
-    password: {
-        type: String,
-        required: [true, "Check entry, ensure all fields complete"]
-    },
-    expenses: [expenseSchema] // Embed the expense schema as an array
+// Define the user schema
+const userSchema = new mongoose.Schema({
+    username: { type: String, required: true },
+    password: { type: String, required: true },
+    expenses: [expenseSchema]
 });
 
-// Create the user model //
+// Create models for User and Expense based on the schemas
 const User = mongoose.model('User', userSchema);
-//create expense model
 const Expense = mongoose.model('Expense', expenseSchema);
 
-module.exports = User;
+// Define route handlers
 
-app.get("/", function(req, res){
-    res.render('LoginScreen', {loginTitle: ""});
+// Serve the frontend application
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
 });
 
+// Handle login and registration
+app.post("/", (req, res) => {
+    const newUsername = req.body.usernameInput.toLowerCase();
+    const newPassword = req.body.passwordInput;
+    const newAccount = typeof req.body.newAccountSwitch !== 'undefined';
 
-app.post("/", function(req, res) {
-    //gets login information
-    var newUsername = (req.body.usernameInput).toLowerCase();
-    var newPassword = req.body.passwordInput;
-    var newAccount = typeof req.body.newAccountSwitch !== 'undefined';
+    const newUser = new User({ username: newUsername, password: newPassword, expenses: [] });
 
-    const newUser = new User({
-      username: newUsername,
-      password: newPassword,
-      expenses: []
-    });
-
-    User.findOne({username: newUsername}).then((data) => {
-      //if user tries to make new account
-      if (data === null && newAccount)
-      {
-        loggedInUserID = newUser._id;
-        User.insertMany([newUser]);
-        res.redirect("/home");
-
-      }
-      //if user tries to log into existing account
-      else if (data !== null && data.password === newPassword && !newAccount)
-      {
-        loggedInUserID = data._id;
-        res.redirect("/home");
-      }
-      else
-      {
-        //renders if login unsuccessful
-        res.render('LoginScreen', {loginTitle: "Invalid info, please try again"});
-      }
+    User.findOne({ username: newUsername }).then((data) => {
+        if (data === null && newAccount) {
+            // Register a new user
+            loggedInUserID = newUser._id;
+            User.insertMany([newUser]);
+            res.redirect("/home");
+        } else if (data !== null && data.password === newPassword && !newAccount) {
+            // Login existing user
+            loggedInUserID = data._id;
+            res.redirect("/home");
+        } else {
+            // Invalid login or registration attempt
+            res.render('LoginScreen', { loginTitle: "Invalid info, please try again" });
+        }
     });
 });
 
-app.get("/home", function(req, res) {
-
-    //checks if user is logged in first
-    if (loggedInUserID === -1)
-    {
-      res.redirect("/");
+// Serve the home page showing the user's expenses
+app.get("/home", (req, res) => {
+    if (loggedInUserID === -1) {
+        res.redirect("/");
+    } else {
+        User.findOne({ _id: loggedInUserID }).then((data) => {
+            const expenses = data.expenses;
+            res.render('ExpenseHomeScreen', { expenseArray: expenses });
+        });
     }
+});
 
-    //gets user and loads there expenses by passing array to ejs
-    User.findOne({_id: loggedInUserID}).then((data) => {
-        let expenses = data.expenses;
-
-        res.render('ExpenseHomeScreen', {expenseArray: expenses});
+// Handle adding a new expense
+app.post("/addExpense", (req, res) => {
+    const newExpense = new Expense({
+        name: req.body.nameInput,
+        category: req.body.categoryInput,
+        price: req.body.priceInput,
+        date: req.body.dateInput,
+        description: req.body.descriptionInput
     });
 
-});
-
-app.post("/addExpense", function(req, res) {
-  //gets new expense values
-  var name = req.body.nameInput;
-  var category = req.body.categoryInput;
-  var price = req.body.priceInput;
-  var date = req.body.dateInput;
-  var description = req.body.descriptionInput;
-
-  const newExpense = new Expense({
-    name: name,
-    category: category,
-    price: price,
-    date: date,
-    description: description
-  });
-
-  //adds expense to logined in user
-  User.findOne({_id: loggedInUserID}).then((data) => {
-    data.expenses.push(newExpense);
-    data.save();
-  });
-
-  res.redirect("/home");
-
-});
-
-app.post("/deleteExpense", function(req, res) {
-  //expense id to be deleted
-  var expenseID = req.body.deleteEntry;
-
-  //gets user logged in
-  User.findOne({_id: loggedInUserID}).then((data) => {
-
-    //goes through expenses arrary and finds expense
-    for (expenseIndex = 0; expenseIndex < data.expenses.length; ++expenseIndex)
-    {
-      //if expense found delete expense
-      if (data.expenses[expenseIndex]._id == expenseID)
-      {
-        data.expenses.splice(expenseIndex, 1);
+    User.findOne({ _id: loggedInUserID }).then((data) => {
+        data.expenses.push(newExpense);
         data.save();
         res.redirect("/home");
-      }
-    }
-    console.log("Failed to delete");
-  });
+    });
 });
 
-app.post("/sort", function(req, res) {
-  //gets the button that was clicked
-  var sortChoice = req.body.sortButton;
+// Handle deleting an expense
+app.post("/deleteExpense", (req, res) => {
+    const expenseID = req.body.deleteEntry;
 
-  //finds logged in user
-  User.findOne({_id: loggedInUserID}).then((data) => {
-      //sorts array by what the user selected from lowest to highest
-      switch (sortChoice) {
-        case "name":
-          data.expenses.sort((a, b) => b.name.localeCompare(a.name));
-          break;
-        case "category":
-          data.expenses.sort((a, b) => b.category.localeCompare(a.category));
-          break;
-        case "amount":
-          data.expenses.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
-          break;
-        case "date":
-          data.expenses.sort((a, b) => b.date.getTime() - a.date.getTime());
-          break;
-        default:
-          console.log("Unknown sort method");
-      }
-      //saves data and reloads page
-      data.save();
-      res.redirect("/home");
-  });
-
+    User.findOne({ _id: loggedInUserID }).then((data) => {
+        data.expenses = data.expenses.filter(expense => expense._id != expenseID);
+        data.save().then(() => res.redirect("/home"));
+    });
 });
 
-//menu options, currently just logs out and goes to login screen
-app.post("/menu", function(req, res) {
-  loggedInUserID = -1;
-  res.redirect("/");
+// Handle sorting expenses
+app.post("/sort", (req, res) => {
+    const sortChoice = req.body.sortButton;
+
+    User.findOne({ _id: loggedInUserID }).then((data) => {
+        switch (sortChoice) {
+            case "name":
+                data.expenses.sort((a, b) => b.name.localeCompare(a.name));
+                break;
+            case "category":
+                data.expenses.sort((a, b) => b.category.localeCompare(a.category));
+                break;
+            case "amount":
+                data.expenses.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+                break;
+            case "date":
+                data.expenses.sort((a, b) => b.date.getTime() - a.date.getTime());
+                break;
+            default:
+                console.log("Unknown sort method");
+        }
+        data.save().then(() => res.redirect("/home"));
+    });
 });
 
-//Says which port to listen to
-app.listen(port, function(){
-  console.log("Server started");
+// Handle user logout
+app.post("/menu", (req, res) => {
+    loggedInUserID = -1;
+    res.redirect("/");
 });
+
+// Serve frontend static files in production
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../frontend/build')));
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../front
