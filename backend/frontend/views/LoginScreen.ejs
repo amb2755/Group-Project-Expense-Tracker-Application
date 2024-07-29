@@ -1,45 +1,32 @@
-<!DOCTYOE html>
-<html lang="en" dir="ltr">
+<!DOCTYPE html>
+<html lang="en">
 	<head>
-		<meta charset="utf-8">
-			<title>ExpenseTracker</title>
-
-			<link rel="stylesheet" type="text/css" href="css/styles.css">
-	</head>
-	<body class="text-center">
-
-		<div>
-			<form action="/" method="post">
-
-				<h3>Enter Username and password to login or click chekcbox to create new account</h3>
-				<p>
-					<%= loginTitle %>
-				</p>
-
-				<input
-				  name="usernameInput"
-				  placeholder="username"
-				  autocomplete="off"
-						  class="top"
-	      />
-				<br>
-
-					<input
-					  name="passwordInput"
-					  placeholder="password"
-					  autocomplete="off"
-							  class="bottom"
-	      />
-					<br>
-
-						<button class="btn btn-lg btn-primary btn-block" type="submit" name="loginButton">login/Create User</button>
-						<br>
-
-							<input name="newAccountSwitch" type="checkbox" value="newAccount"></input>
-							<label for="newAccountSwitch">Create New account?</label>
-							<br>
-	    
-			</form>
-		</div>
+		<meta charset="UTF-8">
+			<title>Login</title>
+			<link rel="stylesheet" href="css/styles.css">
+</head>
+	<body>
+		<form action="/" method="post">
+			<h3>Enter Username and password to login or click checkbox to create new account</h3>
+			<p>
+				<%= loginTitle %>
+			</p>
+			<input
+				type="text"
+				name="usernameInput"
+				placeholder="Username"
+				required=""
+        />
+			<input
+				type="password"
+				name="passwordInput"
+				placeholder="Password"
+				required=""
+        />
+			<label>
+				<input type="checkbox" name="newAccountSwitch"> Create new account
+        </label>
+			<button type="submit">Login</button>
+		</form>
 	</body>
 </html>
