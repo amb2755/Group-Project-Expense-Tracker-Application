@@ -8,6 +8,11 @@ h3 {
   text-align: center;
 }
 
+h1 {
+  color: #020024;
+  text-align: center;
+}
+
 input[type="checkbox"] {
   margin: 20px;
 }
