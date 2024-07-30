@@ -1,36 +1,8 @@
 const mongoose = require('mongoose');
+const Expense = require('./Expense').schema; // Import the Expense schema
 
-// Define the expense schema //
-const expenseSchema = mongoose.Schema({
-    name: {
-        type: String,
-        required: [true, "Check entry, ensure all fields complete"]
-    },
-    category: {
-        type: String,
-        required: [true, "Check entry, ensure all fields complete"]
-    },
-    price: {
-        type: Number,
-        required: [true, "Check entry, ensure all fields complete"],
-        min: 0
-    },
-    date: {
-        type: Date,
-        required: [true, "Check entry, ensure all fields complete"]
-    },
-    description: {
-        type: String,
-        required: [true, "Check entry, ensure all fields complete"]
-    }
-});
-
-// Define the user schema //
-const userSchema = mongoose.Schema({
-    id: {
-        type: Number,
-        required: [true, "Check entry, ensure all fields complete"]
-    },
+// Define the user schema
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: [true, "Check entry, ensure all fields complete"]
@@ -39,10 +11,10 @@ const userSchema = mongoose.Schema({
         type: String,
         required: [true, "Check entry, ensure all fields complete"]
     },
-    expenses: [expenseSchema] // Embed the expense schema as an array
+    expenses: [Expense] // Embed the expense schema as an array
 });
 
-// Create the user model //
+// Create and export the user model
 const User = mongoose.model('User', userSchema);
-
 module.exports = User;
+
