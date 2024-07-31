@@ -336,24 +336,28 @@ app.get("/monthly", function(req, res) {
 
     //gets user
     User.findOne({_id: loggedInUserID}).then((data) => {
-      // data.expenses.sort((a, b) => b.date.getTime() - a.date.getTime());
+      //declare varibales to be used such as getting user expenses
       let expenses = data.expenses.sort((a, b) => a.date.getTime() - b.date.getTime());
+      //arrays for user categories and months
       let categories = [];
       let months = [];
+      //used to sort dates
       let monthsAndYears = [];
+
+      //list that will be displayed to user
       let sortedExpense = [];
 
-
+      //loops through expenses finding what the user can sort by
       for (var index = 0; index < expenses.length; ++index)
       {
-
+          //checks if category option has been added
           if(categories.indexOf(expenses[index].category) === -1) {
             categories.push(expenses[index].category);
           }
 
+          //checks if date option has been added
           var compareDate = expenses[index].date.getMonth() + ""
             + expenses[index].date.getFullYear()
-
 
           if(months.indexOf(expenses[index].date) === -1 &&
             monthsAndYears.indexOf(compareDate) === -1)
@@ -365,12 +369,12 @@ app.get("/monthly", function(req, res) {
 
       }
 
-
+      //changes type depending on if date is entered or not
       if (reportedDate !== "every") {
         reportedDate = new Date(reportedDate);
-
       }
 
+      //loops through expenses using user preferences set and load items into sortedExpense
       for (var index = 0; index < expenses.length; ++index)
       {
 
@@ -384,6 +388,7 @@ app.get("/monthly", function(req, res) {
 
       }
 
+      //sets how date will be displayed in header of report
       let viewDate = "";
       if (reportedDate !== "every")
       {
@@ -391,6 +396,18 @@ app.get("/monthly", function(req, res) {
       }
       else {
         viewDate = reportedDate;
+      }
+
+      //variables for additional information
+      var mostCommonCategory;
+      var leastCommonCategory;
+      //Bills, Groceries, Gas
+      var categoryAmounts = [0,0,0];
+      var totalExpese;
+
+      for (var index = 0; index < sortedExpense.length; ++index)
+      {
+
       }
 
       res.render('MonthlyReportScreen', {expenseArray: sortedExpense,
