@@ -28,7 +28,7 @@
 				</select>
 
 				<select name="monthInput" selectedIndex="<%= selectedDate %>">
-					<option value="every"> every </option>
+					<option value="every month"> every </option>
 					<% for (var index=0; index < monthArray.length; ++index) { %>
 					<option value="<%= monthArray[index] %>"><%= monthArray[index].getMonth() +1 %> - <%= monthArray[index].getFullYear() %></option>
 					<% } %>
@@ -38,6 +38,20 @@
 			</form>
 
 			<p> Report for <%= selectedCategory %> category for <%= selectedDate %> </p>
+
+			<!-- Report table -->
+			<table class="entryTable">
+				<tr>
+					<th> Most common expense </th>
+					<th> Least common expense </th>
+					<th> Total spending for month </th>
+				</tr>
+				<tr>
+					<th> <%= reportInfo[0] %> </th>
+					<th> <%= reportInfo[1] %> </th>
+					<th> <%= reportInfo[2] %> </th>
+				</tr>
+			</table>
 
 			<table class="entryTable" >
 

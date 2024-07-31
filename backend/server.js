@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const _ = require('lodash');
 const moment = require('moment');
 const path = require('path');
+// const Math = require('math');
 const port = process.env.PORT || 3000;
 var loggedInUserID = -1;
 var activeExpense = -1;
@@ -322,7 +323,7 @@ app.get("/visual", function(req, res) {
 });
 
 
-var reportedDate = "every";
+var reportedDate = "every month";
 var reportedCategory = "all";
 app.get("/monthly", function(req, res) {
 
@@ -370,7 +371,7 @@ app.get("/monthly", function(req, res) {
       }
 
       //changes type depending on if date is entered or not
-      if (reportedDate !== "every") {
+      if (reportedDate !== "every month") {
         reportedDate = new Date(reportedDate);
       }
 
@@ -378,7 +379,7 @@ app.get("/monthly", function(req, res) {
       for (var index = 0; index < expenses.length; ++index)
       {
 
-        if (( reportedDate == "every" ||
+        if (( reportedDate == "every month" ||
             (expenses[index].date.getMonth() === reportedDate.getMonth()
             && expenses[index].date.getFullYear() === reportedDate.getFullYear())) &&
             (reportedCategory == expenses[index].category || reportedCategory == "all"))
@@ -390,7 +391,7 @@ app.get("/monthly", function(req, res) {
 
       //sets how date will be displayed in header of report
       let viewDate = "";
-      if (reportedDate !== "every")
+      if (reportedDate !== "every month")
       {
         viewDate = ((reportedDate.getMonth() + 1) + "/" + reportedDate.getFullYear());
       }
@@ -403,16 +404,68 @@ app.get("/monthly", function(req, res) {
       var leastCommonCategory;
       //Bills, Groceries, Gas
       var categoryAmounts = [0,0,0];
-      var totalExpese;
+      var totalExpese = 0;
 
+      //loops through expenses and finds amounts of each category
       for (var index = 0; index < sortedExpense.length; ++index)
       {
+        switch (sortedExpense[index].category) {
+          case "Bills":
+            categoryAmounts[0] += 1;
+            break;
+          case "Groceries":
+            categoryAmounts[1] += 1;
+            break;
+          case "Gas":
+            categoryAmounts[2] += 1;
+            break;
+          default:
+            console.log("No category found");
+        }
+        totalExpese += sortedExpense[index].price;
+      }
+      //finds index of most common category
+      mostCommonCategory = categoryAmounts.indexOf(Math.max(...categoryAmounts));
+      leastCommonCategory = categoryAmounts.indexOf(Math.min(...categoryAmounts));
 
+      //Sets most Common Category by finding which index
+      switch (mostCommonCategory) {
+        case 0:
+          mostCommonCategory = "Bills"
+          break;
+        case 1:
+          mostCommonCategory = "Groceries"
+          break;
+        case 2:
+          mostCommonCategory = "Gas"
+          break;
+        default:
+          console.log("No Most Common");
       }
 
+      //Sets least Common Category by finding which index
+      switch (leastCommonCategory) {
+        case 0:
+          leastCommonCategory = "Bills"
+          break;
+        case 1:
+          leastCommonCategory = "Groceries"
+          break;
+        case 2:
+          leastCommonCategory = "Gas"
+          break;
+        default:
+          console.log("No least Common");
+      }
+
+      //creates info to be passed to front end
+      var reportInfo = [mostCommonCategory, leastCommonCategory, totalExpese];
+
+      //render mothly screen
       res.render('MonthlyReportScreen', {expenseArray: sortedExpense,
         categoryArray: categories, monthArray: months,
-        selectedCategory: reportedCategory, selectedDate: viewDate});
+        selectedCategory: reportedCategory, selectedDate: viewDate,
+        reportInfo: reportInfo});
     });
 
 });
