@@ -405,6 +405,7 @@ app.get("/monthly", function(req, res) {
       //Bills, Groceries, Gas
       var categoryAmounts = [0,0,0];
       var totalExpese = 0;
+      var averagePerExpense = 0;
 
       //loops through expenses and finds amounts of each category
       for (var index = 0; index < sortedExpense.length; ++index)
@@ -422,8 +423,11 @@ app.get("/monthly", function(req, res) {
           default:
             console.log("No category found");
         }
-        totalExpese += sortedExpense[index].price;
+        totalExpese += sortedExpense[index].price
       }
+
+      averagePerExpense = (totalExpese / sortedExpense.length).toFixed(2);
+
       //finds index of most common category
       mostCommonCategory = categoryAmounts.indexOf(Math.max(...categoryAmounts));
       leastCommonCategory = categoryAmounts.indexOf(Math.min(...categoryAmounts));
@@ -459,7 +463,7 @@ app.get("/monthly", function(req, res) {
       }
 
       //creates info to be passed to front end
-      var reportInfo = [mostCommonCategory, leastCommonCategory, totalExpese];
+      var reportInfo = [mostCommonCategory, leastCommonCategory, totalExpese.toFixed(2), averagePerExpense];
 
       //render mothly screen
       res.render('MonthlyReportScreen', {expenseArray: sortedExpense,
