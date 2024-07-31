@@ -16,7 +16,47 @@
 
       </form>
 
+			<h1> Monthly Report </h1>
 
-      <h1> This is where monthly reports will go </h1>
+			<form action="/monthlyReport" method="post">
+
+				<select name="categoryInput" selectedIndex="<%= selectedCategory %>">
+					<option value="all">all</option>
+					 <% for (var index=0; index < categoryArray.length; ++index) { %>
+					 <option value="<%= categoryArray[index] %>"><%= categoryArray[index] %></option>
+					 <% } %>
+				</select>
+
+				<select name="monthInput" selectedIndex="<%= selectedDate %>">
+					<option value="every"> every </option>
+					<% for (var index=0; index < monthArray.length; ++index) { %>
+					<option value="<%= monthArray[index] %>"><%= monthArray[index].getMonth() +1 %> - <%= monthArray[index].getFullYear() %></option>
+					<% } %>
+				</select>
+
+				<button type="submit" name="report">Report</button>
+			</form>
+
+			<p> Report for <%= selectedCategory %> category for <%= selectedDate %> </p>
+
+			<table class="entryTable" >
+
+				<% for (var index=0; index < expenseArray.length; ++index) { %>
+				<tr name="expenseRow">
+				 <th> <%= expenseArray[index].name %> </th>
+				 <th> <%= expenseArray[index].category %> </th>
+				 <th> <%= expenseArray[index].price %> </th>
+				 <th> <!-- Format date for view -->
+					 <%= expenseArray[index].date.getMonth() + 1 %> /
+					 <%= expenseArray[index].date.getDate() + 1 %> /
+					 <%= expenseArray[index].date.getFullYear() %>
+				 </th>
+				 <th> <%= expenseArray[index].description %> </th>
+			 </tr>
+			 <% } %>
+		 </table>
+
+
+
    </body>
  </html>

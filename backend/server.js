@@ -198,9 +198,6 @@ app.post("/editEntry", function(req, res) {
         {
           //adds expense to be edited into input fields
           activeExpense = data.expenses[expenseIndex];
-          console.log(data.expenses[expenseIndex].date.getFullYear() +
-          "/" + data.expenses[expenseIndex].date.getMonth() +
-          "/" + data.expenses[expenseIndex].date.getDate());
         }
         data.expenses.splice(expenseIndex, 1);
         data.save();
@@ -307,6 +304,8 @@ app.post("/menu", function(req, res) {
 
 app.get("/visual", function(req, res) {
 
+
+
     //checks if user is logged in first
     if (loggedInUserID === -1)
     {
@@ -317,11 +316,14 @@ app.get("/visual", function(req, res) {
     User.findOne({_id: loggedInUserID}).then((data) => {
         let expenses = data.expenses;
 
-        res.render('VisualReportScreen', {expenseArray: expenses});
+        res.render('VisualReportScreen');
     });
 
 });
 
+
+var reportedDate = "every";
+var reportedCategory = "all";
 app.get("/monthly", function(req, res) {
 
     //checks if user is logged in first
@@ -330,13 +332,80 @@ app.get("/monthly", function(req, res) {
       res.redirect("/");
     }
 
+
+
     //gets user
     User.findOne({_id: loggedInUserID}).then((data) => {
-        let expenses = data.expenses;
+      // data.expenses.sort((a, b) => b.date.getTime() - a.date.getTime());
+      let expenses = data.expenses.sort((a, b) => a.date.getTime() - b.date.getTime());
+      let categories = [];
+      let months = [];
+      let monthsAndYears = [];
+      let sortedExpense = [];
 
-        res.render('MonthlyReportScreen', {expenseArray: expenses});
+
+      for (var index = 0; index < expenses.length; ++index)
+      {
+
+          if(categories.indexOf(expenses[index].category) === -1) {
+            categories.push(expenses[index].category);
+          }
+
+          var compareDate = expenses[index].date.getMonth() + ""
+            + expenses[index].date.getFullYear()
+
+
+          if(months.indexOf(expenses[index].date) === -1 &&
+            monthsAndYears.indexOf(compareDate) === -1)
+          {
+            months.push(expenses[index].date);
+            monthsAndYears.push(expenses[index].date.getMonth() + "" +
+                                  expenses[index].date.getFullYear());
+          }
+
+      }
+
+
+      if (reportedDate !== "every") {
+        reportedDate = new Date(reportedDate);
+
+      }
+
+      for (var index = 0; index < expenses.length; ++index)
+      {
+
+        if (( reportedDate == "every" ||
+            (expenses[index].date.getMonth() === reportedDate.getMonth()
+            && expenses[index].date.getFullYear() === reportedDate.getFullYear())) &&
+            (reportedCategory == expenses[index].category || reportedCategory == "all"))
+              {
+                sortedExpense.push(expenses[index])
+              }
+
+      }
+
+      let viewDate = "";
+      if (reportedDate !== "every")
+      {
+        viewDate = ((reportedDate.getMonth() + 1) + "/" + reportedDate.getFullYear());
+      }
+      else {
+        viewDate = reportedDate;
+      }
+
+      res.render('MonthlyReportScreen', {expenseArray: sortedExpense,
+        categoryArray: categories, monthArray: months,
+        selectedCategory: reportedCategory, selectedDate: viewDate});
     });
 
+});
+
+app.post("/monthlyReport", function(req, res)
+{
+  reportedDate = req.body.monthInput;
+  reportedCategory = req.body.categoryInput;
+
+  res.redirect("/monthly");
 });
 
 //Says which port to listen to
