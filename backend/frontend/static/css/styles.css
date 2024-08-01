@@ -73,3 +73,14 @@ footer {
   table-layout: fixed;
   width: 100%;
 }
+
+.graph {
+  width:100%;
+  max-width:600px;
+  text-align:center;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}

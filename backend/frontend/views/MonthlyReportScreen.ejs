@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<title>ExpenseTracker</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 
 		<link rel="stylesheet" type="text/css" href="css/styles.css">
 	</head>
@@ -20,6 +21,7 @@
 
 			<form action="/monthlyReport" method="post">
 
+				<label for="categoryInput">Category: </label>
 				<select name="categoryInput" selectedIndex="<%= selectedCategory %>">
 					<option value="all">all</option>
 					 <% for (var index=0; index < categoryArray.length; ++index) { %>
@@ -27,6 +29,7 @@
 					 <% } %>
 				</select>
 
+				<label for="monthInput">Month: </label>
 				<select name="monthInput" selectedIndex="<%= selectedDate %>">
 					<option value="every month"> every </option>
 					<% for (var index=0; index < monthArray.length; ++index) { %>
@@ -34,10 +37,42 @@
 					<% } %>
 				</select>
 
+				<label for="graphInput">Graph Type: </label>
+				<select name="graphInput" selectedIndex="bar">
+					<option value="bar"> bar </option>
+					<option value="pie"> pie </option>
+					<option value="line"> line </option>
+				</select>
+
 				<button type="submit" name="report">Report</button>
 			</form>
 
 			<p> Report for <%= selectedCategory %> category for <%= selectedDate %> </p>
+
+			<canvas id="myChart" class="graph"></canvas>
+
+			<!-- Script for creating visual graphs -->
+			<script>
+	 		 const categories = ["Bills", "Groceries", "Gas"];
+	 		 const barColors = ["red", "green","blue"];
+
+	 		 new Chart("myChart", {
+	 			 type: "<%= chartType %>",
+	 			 data: {
+	 				 labels: categories,
+	 				 datasets: [{
+	 					 backgroundColor: barColors,
+	 					 data: [<%= categoryExpenseAmounts %>]
+	 				 }]
+	 			 },
+	 			 options: {
+	 				 title: {
+	 					 display: true,
+	 					 text: "Report"
+	 				 }
+	 			 }
+	 		 });
+	 		</script>
 
 			<!-- Report table -->
 			<table class="entryTable">
@@ -71,7 +106,6 @@
 			 </tr>
 			 <% } %>
 		 </table>
-
 
 
    </body>

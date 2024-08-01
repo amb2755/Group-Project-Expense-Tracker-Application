@@ -5,11 +5,9 @@ const mongoose = require('mongoose');
 const _ = require('lodash');
 const moment = require('moment');
 const path = require('path');
-// const Math = require('math');
 const port = process.env.PORT || 3000;
 var loggedInUserID = -1;
 var activeExpense = -1;
-
 
 const app = express();
 
@@ -303,28 +301,10 @@ app.post("/menu", function(req, res) {
   }
 });
 
-app.get("/visual", function(req, res) {
-
-
-
-    //checks if user is logged in first
-    if (loggedInUserID === -1)
-    {
-      res.redirect("/");
-    }
-
-    //gets user
-    User.findOne({_id: loggedInUserID}).then((data) => {
-        let expenses = data.expenses;
-
-        res.render('VisualReportScreen');
-    });
-
-});
-
-
+//items user inputted
 var reportedDate = "every month";
 var reportedCategory = "all";
+var chartType = "bar";
 app.get("/monthly", function(req, res) {
 
     //checks if user is logged in first
@@ -404,6 +384,7 @@ app.get("/monthly", function(req, res) {
       var leastCommonCategory;
       //Bills, Groceries, Gas
       var categoryAmounts = [0,0,0];
+      var categoryExpenseAmounts = [0,0,0];
       var totalExpese = 0;
       var averagePerExpense = 0;
 
@@ -413,12 +394,15 @@ app.get("/monthly", function(req, res) {
         switch (sortedExpense[index].category) {
           case "Bills":
             categoryAmounts[0] += 1;
+            categoryExpenseAmounts[0] += Math.trunc(sortedExpense[index].price);
             break;
           case "Groceries":
             categoryAmounts[1] += 1;
+            categoryExpenseAmounts[1] += Math.trunc(sortedExpense[index].price);
             break;
           case "Gas":
             categoryAmounts[2] += 1;
+            categoryExpenseAmounts[2] += Math.trunc(sortedExpense[index].price);
             break;
           default:
             console.log("No category found");
@@ -426,6 +410,7 @@ app.get("/monthly", function(req, res) {
         totalExpese += sortedExpense[index].price
       }
 
+      //gets average amount spent on each expense
       averagePerExpense = (totalExpese / sortedExpense.length).toFixed(2);
 
       //finds index of most common category
@@ -465,11 +450,12 @@ app.get("/monthly", function(req, res) {
       //creates info to be passed to front end
       var reportInfo = [mostCommonCategory, leastCommonCategory, totalExpese.toFixed(2), averagePerExpense];
 
-      //render mothly screen
+      //render mothly screen with graph
       res.render('MonthlyReportScreen', {expenseArray: sortedExpense,
         categoryArray: categories, monthArray: months,
         selectedCategory: reportedCategory, selectedDate: viewDate,
-        reportInfo: reportInfo});
+        reportInfo: reportInfo, chartType: chartType,
+        categoryExpenseAmounts: categoryExpenseAmounts});
     });
 
 });
@@ -478,8 +464,29 @@ app.post("/monthlyReport", function(req, res)
 {
   reportedDate = req.body.monthInput;
   reportedCategory = req.body.categoryInput;
+  chartType = req.body.graphInput;
 
   res.redirect("/monthly");
+});
+
+
+app.get("/visual", function(req, res) {
+
+    //checks if user is logged in first
+    if (loggedInUserID === -1)
+    {
+      res.redirect("/");
+    }
+
+    //gets user
+    User.findOne({_id: loggedInUserID}).then((data) => {
+        let expenses = data.expenses;
+
+
+
+        res.render('VisualReportScreen');
+    });
+
 });
 
 //Says which port to listen to
