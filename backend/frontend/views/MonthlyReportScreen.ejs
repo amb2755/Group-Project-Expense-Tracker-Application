@@ -41,7 +41,6 @@
 				<select name="graphInput" selectedIndex="bar">
 					<option value="bar"> bar </option>
 					<option value="pie"> pie </option>
-					<option value="line"> line </option>
 				</select>
 
 				<button type="submit" name="report">Report</button>
@@ -65,7 +64,19 @@
 	 					 data: [<%= categoryExpenseAmounts %>]
 	 				 }]
 	 			 },
+
 	 			 options: {
+					 legend: {
+        			display: "<%= chartType %>" == "pie" ? true : false,
+						},
+					 scales: {
+			      yAxes: [{
+			          display: true,
+			          ticks: {
+			                beginAtZero:true
+			            }
+			      }],
+					},
 	 				 title: {
 	 					 display: true,
 	 					 text: "Report"
