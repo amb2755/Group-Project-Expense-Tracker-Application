@@ -1,41 +1,65 @@
 const Expense = require('../models/Expense');
 
-exports.getAllExpenses = async (req, res) => {
-    const expenses = await Expense.find({ userId: req.user.userId });
-    res.json(expenses);
+// Get all expenses
+const getExpenses = async (req, res) => {
+    try {
+        console.log('Fetching expenses for user:', req.user.id);
+        const expenses = await Expense.find({ user: req.user.id });
+        res.json(expenses);
+    } catch (error) {
+        console.error('Error fetching expenses:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
 };
 
-exports.addExpense = async (req, res) => {
+// Add a new expense
+const addExpense = async (req, res) => {
     const { name, category, price, date, description } = req.body;
-    const newExpense = new Expense({ userId: req.user.userId, name, category, price, date, description });
 
     try {
-        await newExpense.save();
-        res.status(201).json(newExpense);
+        console.log('Adding expense:', req.body);
+        const newExpense = new Expense({
+            user: req.user.id,
+            name,
+            category,
+            price,
+            date,
+            description
+        });
+
+        const expense = await newExpense.save();
+        res.json(expense);
     } catch (error) {
-        res.status(400).json({ message: 'Error adding expense', error });
+        console.error('Error adding expense:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 };
 
-exports.editExpense = async (req, res) => {
-    const { name, category, price, date, description } = req.body;
-    const expenseId = req.params.id;
-
+// Delete an expense
+const deleteExpense = async (req, res) => {
     try {
-        const updatedExpense = await Expense.findByIdAndUpdate(expenseId, { name, category, price, date, description }, { new: true });
-        res.json(updatedExpense);
+        console.log('Deleting expense with ID:', req.params.id);
+        const expense = await Expense.findById(req.params.id);
+
+        if (!expense) {
+            return res.status(404).json({ error: 'Expense not found' });
+        }
+
+        // Check if the expense belongs to the user
+        if (expense.user.toString() !== req.user.id) {
+            return res.status(401).json({ error: 'User not authorized' });
+        }
+
+        await expense.remove();
+        res.json({ message: 'Expense removed' });
     } catch (error) {
-        res.status(400).json({ message: 'Error updating expense', error });
+        console.error('Error deleting expense:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 };
 
-exports.deleteExpense = async (req, res) => {
-    const expenseId = req.params.id;
-
-    try {
-        await Expense.findByIdAndDelete(expenseId);
-        res.json({ message: 'Expense deleted' });
-    } catch (error) {
-        res.status(400).json({ message: 'Error deleting expense', error });
-    }
+module.exports = {
+    getExpenses,
+    addExpense,
+    deleteExpense
 };
