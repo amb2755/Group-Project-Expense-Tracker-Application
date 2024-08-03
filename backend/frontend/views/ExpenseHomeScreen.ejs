@@ -32,10 +32,16 @@
 					 value="<%= expense.name %>"
 	       />
 
-				 <select name="categoryInput" selectedIndex="<%= expense.category %>">
-					 	<option value="Groceries">Grocieries</option>
-						<option value="Gas">Gas</option>
-						<option value="Bills">Bills</option>
+				 <select name="categoryInput">
+					 	<option value="Groceries" <%= expense.category == 'Groceries' ? 'selected' : ''%>>
+							Grocieries
+						</option>
+						<option value="Gas" <%= expense.category == 'Gas' ? 'selected' : ''%>>
+							Gas
+						</option>
+						<option value="Bills" <%= expense.category == 'Bills' ? 'selected' : ''%>>
+							Bills
+						</option>
 				 </select>
 
 	       <input

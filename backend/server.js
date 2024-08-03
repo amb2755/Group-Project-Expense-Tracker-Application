@@ -455,7 +455,8 @@ app.get("/monthly", function(req, res) {
         categoryArray: categories, monthArray: months,
         selectedCategory: reportedCategory, selectedDate: viewDate,
         reportInfo: reportInfo, chartType: chartType,
-        categoryExpenseAmounts: categoryExpenseAmounts});
+        categoryExpenseAmounts: categoryExpenseAmounts,
+        reportedDate: reportedDate});
     });
 
 });

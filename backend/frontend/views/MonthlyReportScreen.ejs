@@ -22,23 +22,31 @@
 			<form action="/monthlyReport" method="post">
 
 				<label for="categoryInput">Category: </label>
-				<select name="categoryInput" selectedIndex="<%= selectedCategory %>">
-					<option value="all">all</option>
+				<select name="categoryInput">
+					<option value="all" <%= selectedCategory == "all" ? 'selected' : '' %> >all</option>
 					 <% for (var index=0; index < categoryArray.length; ++index) { %>
-					 <option value="<%= categoryArray[index] %>"><%= categoryArray[index] %></option>
+					 <option value="<%= categoryArray[index] %>"
+						 <%= selectedCategory == categoryArray[index] ? 'selected' : '' %>>
+						 <%= categoryArray[index] %>
+					</option>
 					 <% } %>
 				</select>
 
 				<label for="monthInput">Month: </label>
-				<select name="monthInput" selectedIndex="<%= selectedDate %>">
-					<option value="every month"> every </option>
+				<select name="monthInput">
+					<option value="every month" <%= reportedDate == "every month" ? 'selected' : '' %>>
+						every
+					</option>
 					<% for (var index=0; index < monthArray.length; ++index) { %>
-					<option value="<%= monthArray[index] %>"><%= monthArray[index].getMonth() +1 %> - <%= monthArray[index].getFullYear() %></option>
+					<option value="<%= monthArray[index] %>"
+						<%= reportedDate.valueOf() === monthArray[index].valueOf() ? 'selected' : '' %>>
+						<%= monthArray[index].getMonth() +1 %> - <%= monthArray[index].getFullYear() %>
+					</option>
 					<% } %>
 				</select>
 
 				<label for="graphInput">Graph Type: </label>
-				<select name="graphInput" selectedIndex="bar">
+				<select name="graphInput">
 					<option value="bar"> bar </option>
 					<option value="pie"> pie </option>
 				</select>
