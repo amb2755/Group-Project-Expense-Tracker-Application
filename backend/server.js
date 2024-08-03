@@ -362,7 +362,7 @@ app.get("/monthly", function(req, res) {
         if (( reportedDate == "every month" ||
             (expenses[index].date.getMonth() === reportedDate.getMonth()
             && expenses[index].date.getFullYear() === reportedDate.getFullYear())) &&
-            (reportedCategory == expenses[index].category || reportedCategory == "all"))
+            (reportedCategory.includes(expenses[index].category) || reportedCategory == "all"))
               {
                 sortedExpense.push(expenses[index])
               }

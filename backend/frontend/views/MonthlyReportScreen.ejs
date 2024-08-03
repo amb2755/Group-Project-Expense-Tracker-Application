@@ -11,7 +11,6 @@
       <!-- Menu form for navigating between different pages -->
       <form action="/menu" method="post" name="menuForm">
         <button type="submit" name="menuButton" value="home">edit/view expenses</button>
-        <button type="submit" name="menuButton" value="visual">Visual report</button>
         <button type="submit" name="menuButton" value="monthly">monthly report</button>
         <button type="submit" name="menuButton" value="logout">lougout</button>
 
@@ -22,7 +21,7 @@
 			<form action="/monthlyReport" method="post">
 
 				<label for="categoryInput">Category: </label>
-				<select name="categoryInput">
+				<select name="categoryInput" multiple="multiple">
 					<option value="all" <%= selectedCategory == "all" ? 'selected' : '' %> >all</option>
 					 <% for (var index=0; index < categoryArray.length; ++index) { %>
 					 <option value="<%= categoryArray[index] %>"
