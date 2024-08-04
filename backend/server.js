@@ -414,9 +414,10 @@ app.get("/monthly", function(req, res) {
       averagePerExpense = (totalExpese / sortedExpense.length).toFixed(2);
 
       //finds index of most common category
-      mostCommonCategory = categoryExpenseAmounts.indexOf(Math.max(...categoryExpenseAmounts));
-      leastCommonCategory = categoryExpenseAmounts.indexOf(Math.min(...categoryExpenseAmounts));
-
+      mostCommonCategory = categoryExpenseAmounts.indexOf(Math.min.apply(null,
+        categoryExpenseAmounts.filter(Boolean)));
+      leastCommonCategory = categoryExpenseAmounts.indexOf(Math.min.apply(null,
+        categoryExpenseAmounts.filter(Boolean)));
       //Sets most Common Category by finding which index
       switch (mostCommonCategory) {
         case 0:
