@@ -414,7 +414,7 @@ app.get("/monthly", function(req, res) {
       averagePerExpense = (totalExpese / sortedExpense.length).toFixed(2);
 
       //finds index of most common category
-      mostCommonCategory = categoryExpenseAmounts.indexOf(Math.min.apply(null,
+      mostCommonCategory = categoryExpenseAmounts.indexOf(Math.max.apply(null,
         categoryExpenseAmounts.filter(Boolean)));
       leastCommonCategory = categoryExpenseAmounts.indexOf(Math.min.apply(null,
         categoryExpenseAmounts.filter(Boolean)));
@@ -466,6 +466,10 @@ app.post("/monthlyReport", function(req, res)
 {
   reportedDate = req.body.monthInput;
   reportedCategory = req.body.categoryInput;
+  if (reportedCategory == null)
+  {
+    reportedCategory = "all";
+  }
   chartType = req.body.graphInput;
 
   res.redirect("/monthly");
